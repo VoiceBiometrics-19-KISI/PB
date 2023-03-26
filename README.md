@@ -7,6 +7,6 @@ Norbert Nieżorawski
 
 Kacper Krzemiński
 
-Aleksandra Rumnińska 
+Aleksandra Rumińska 
 
 Paulina Puchalska
