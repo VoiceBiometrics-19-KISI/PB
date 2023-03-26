@@ -2,5 +2,8 @@
 PB
 
 
-## Author
+## Authors
 Norbert Nieżorawski
+Kacper Krzemiński
+Aleksandra Rumnińska 
+Paulina Puchalska
