@@ -1,40 +1,41 @@
-import librosa
 import torch
+import torchaudio as torchaudio
 from datasets import load_dataset
-from transformers import pipeline, Wav2Vec2ForSequenceClassification, Wav2Vec2FeatureExtractor
+from transformers import pipeline
 
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
 print(device)
 
-VERSION = 1
+VERSION = 2
 
 # Audio Classification Pipeline
 if VERSION == 1:
     dataset = load_dataset("anton-l/superb_demo", "si", split="test")
     classifier = pipeline("audio-classification", model="superb/wav2vec2-base-superb-sid")
-    labels = classifier(dataset[1]["file"], top_k=5)
-    print(labels)
+    predictions = classifier(dataset[1]["file"], top_k=5)
+    print(predictions)
 
 
-# Model Directly
-elif VERSION == 2:
-    def map_to_array(example):
-        speech, _ = librosa.load(example["file"], sr=16000, mono=True)
-        example["speech"] = speech
-        return example
-
-
-    # load a demo dataset and read audio files
+else:
     dataset = load_dataset("anton-l/superb_demo", "si", split="test")
-    dataset = dataset.map(map_to_array)
+    classifier = pipeline("audio-classification", model="superb/wav2vec2-base-superb-sid")
 
-    model = Wav2Vec2ForSequenceClassification.from_pretrained("superb/wav2vec2-base-superb-sid")
-    feature_extractor = Wav2Vec2FeatureExtractor.from_pretrained("superb/wav2vec2-base-superb-sid")
+    audio_files = ["one_voice/0.wav", "one_voice/1.wav", "second_voice/0.wav", "second_voice/1.wav"]
 
-    # compute attention masks and normalize the waveform if needed
-    inputs = feature_extractor(dataset[:2]["speech"], sampling_rate=16000, padding=True, return_tensors="pt")
+    def extract_features(file_path):
+        signal, frequency = torchaudio.load(file_path)
 
-    logits = model(**inputs).logits
-    predicted_ids = torch.argmax(logits, dim=-1)
-    labels = [model.config.id2label[_id] for _id in predicted_ids.tolist()]
-    print(labels)
+        # pipeline expects a NumPy array as input
+        signal = signal[0].numpy()
+        return signal
+
+    # extract the features from each audio file
+    features = [extract_features(file) for file in audio_files]
+
+    # predict the speaker label
+    predictions = [classifier(feature)[0] for feature in features]
+
+    for prediction in predictions:
+        print("Score: ", prediction["score"], " predicted label: ", prediction["label"])
+
+
