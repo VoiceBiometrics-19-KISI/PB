@@ -1,3 +1,0 @@
-speechbrain
-soundfile
-torchaudio
