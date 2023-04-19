@@ -1,7 +1,8 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 
-my_file = open('Results-China.txt', 'r')
+# my_file = open('Results-China.txt', 'r')
+my_file = open('Anglik_VOX.txt', 'r')
 data = my_file.read()
 
 data = data.replace("[", "")
@@ -33,13 +34,17 @@ df = pd.DataFrame(mylist, columns=["A", "B", "C", "D"])
 print(df)
 
 colors = ["paleturquoise", "aquamarine", "turquoise", "teal", "darkslategrey"]
-df["A"].value_counts().plot(kind='pie', autopct='%1.1f%%', startangle=90, colors=colors)
+df["A"].value_counts().plot(kind='pie', startangle=90, colors=colors) #autopct='%1.1f%%' - for percentage on the plot
+#to have legend from the side
+plt.legend(df["A"].value_counts()*100/200, loc='center left', bbox_to_anchor=(-0.35, .5), fontsize=8)
 plt.title("Percentage distribution of recognizing the same voice in 4 trials")
 plt.ylabel("Count of recognized")
 plt.show()
 
 colors = ["dodgerblue", "deepskyblue", "lightskyblue", "powderblue", "aliceblue"]
-df["C"].value_counts().plot(kind='pie', autopct='%1.1f%%', startangle=90, colors=colors)
+df["C"].value_counts().plot(kind='pie', startangle=90, colors=colors) #autopct='%1.1f%%' - for percentage on the plot
+#to have legend from the side
+plt.legend(df["A"].value_counts()*100/200, loc='center left', bbox_to_anchor=(-0.35, .5), fontsize=8)
 plt.title("Percentage distribution of recognizing different voice in 4 trials")
 plt.ylabel("Count of recognized")
 plt.show()
