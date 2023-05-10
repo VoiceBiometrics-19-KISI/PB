@@ -12,11 +12,10 @@ verification = SpeakerRecognition.from_hparams(source="speechbrain/spkrec-ecapa-
 target = 'CN-Celeb_wav/data/'
 target_path = Path(target)
 counter = 50
+same_speaker_scores = []
+different_speaker_scores = []
 
 for i in range(counter):
-    same_speaker_scores = []
-    different_speaker_scores = []
-
     print(i)
     curr_path = target_path / f'id{i:05}'
     index = random.randint(0, 4)
@@ -66,15 +65,14 @@ for i in range(counter):
 
     diff_tuple = (diff_count, different_speaker_scores)
     FINAL_SCORES.append((same_tuple, diff_tuple))
+
 print(FINAL_SCORES)
 
+positive = torch.Tensor(counter*4)
+torch.cat(same_speaker_scores, out=positive)
 
+negative = torch.Tensor(counter*4)
+torch.cat(different_speaker_scores, out=negative)
 
-# positive_scores = torch.tensor(same_speaker_scores)
-# negative_scores = torch.tensor(different_speaker_scores)
-#
-# print(positive_scores[0], positive_scores[1], positive_scores[2])
-# print(negative_scores[0], negative_scores)
-# val_eer, threshold = EER(positive_scores, negative_scores)
-# # Print results
-# print("EER: ", val_eer, " THRESHOLD: ", threshold)
+val_eer, threshold = EER(positive, negative)
+print("EER: ", val_eer, " THRESHOLD: ", threshold)
