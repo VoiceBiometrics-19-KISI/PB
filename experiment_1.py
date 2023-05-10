@@ -5,13 +5,16 @@ import torch
 from speechbrain.pretrained import SpeakerRecognition
 from speechbrain.utils.metric_stats import EER
 
+device = 'cuda' if torch.cuda.is_available() else 'cpu'
+
 FINAL_SCORES = []
 verification = SpeakerRecognition.from_hparams(source="speechbrain/spkrec-ecapa-voxceleb",
                                                savedir="pretrained_models/spkrec-ecapa-voxceleb",
                                                run_opts={"device": "cuda:0"})
-target = 'CN-Celeb_wav/data/'
+# target = 'CN-Celeb_wav/data/'
+target = 'dataset_test_en/'
 target_path = Path(target)
-counter = 50
+counter = 158
 same_speaker_scores = []
 different_speaker_scores = []
 
@@ -66,7 +69,7 @@ for i in range(counter):
     diff_tuple = (diff_count, different_speaker_scores)
     FINAL_SCORES.append((same_tuple, diff_tuple))
 
-print(FINAL_SCORES)
+# print(FINAL_SCORES)
 
 positive = torch.Tensor(counter*4)
 torch.cat(same_speaker_scores, out=positive)

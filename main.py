@@ -1,17 +1,10 @@
 import torch
 import librosa
-
-device = 'cuda' if torch.cuda.is_available() else 'cpu'
-
-
-def print_hi(name):
-    print(f'Hi, {name}')
-
-
-
 from pathlib import PurePath, Path
 from pydub import AudioSegment
 import os
+
+device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
 # assign directory
 directory = 'CN-Celeb_flac/data/'
