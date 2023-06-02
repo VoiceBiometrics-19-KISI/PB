@@ -1,0 +1,57 @@
+# ################################
+# Model: Speaker Verification Baseline
+# Authors: Hwidong Na 2020
+#          Mirco Ravanelli 2020
+# ################################
+
+seed: 1235
+__set_seed: !apply:torch.manual_seed [!ref <seed>]
+
+# Folders and train_log file
+data_folder: C:\PB\PB\ #e.g., /localscratch/voxceleb1
+pre_output_folder: !ref ./results/speaker_id
+output_folder: !ref <pre_output_folder>/<seed>
+save_folder: !ref <output_folder>/save/
+
+# Here, the pretrained embedding model trained with train_speaker_embeddings.py hparams/train_ecapa_tdnn.yaml
+# is downloaded from the speechbrain HuggingFace repository.
+# However, a local path pointing to a directory containing your checkpoints may also be specified
+# instead (see pretrainer below)
+pretrain_path: !ref ./results/speaker_id/1988/CKPT+2023-06-02+01-04-58+00
+
+# csv files
+train_data: train.json
+valid_data: valid.json
+test_data: test.json
+split_ratio: [80, 10, 10]
+skip_prep: False
+
+batch_size: 8
+score_norm: s-norm  # z-norm t-norm s-norm (uncomment to enable it)
+cohort_size: 20000 # amount of imposter utterances in normalization cohort
+n_train_snts: 400000 # used for normalization stats
+
+# Feature parameters
+n_mels: 80
+
+compute_features: !new:speechbrain.lobes.features.Fbank
+    n_mels: !ref <n_mels>
+
+mean_var_norm: !new:speechbrain.processing.features.InputNormalization
+    norm_type: sentence
+    std_norm: False
+
+embedding_model: !new:speechbrain.lobes.models.ECAPA_TDNN.ECAPA_TDNN
+    input_size: !ref <n_mels>
+    channels: [1024, 1024, 1024, 1024, 3072]
+    kernel_sizes: [5, 3, 3, 3, 1]
+    dilations: [1, 2, 3, 4, 1]
+    attention_channels: 128
+    lin_neurons: 192
+
+pretrainer: !new:speechbrain.utils.parameter_transfer.Pretrainer
+    collect_in: !ref <pre_output_folder>
+    loadables:
+        embedding_model: !ref <embedding_model>
+    paths:
+        embedding_model: !ref <pre_output_folder>/1988/save/CKPT+2023-06-02+01-04-58+00/embedding_model.ckpt
