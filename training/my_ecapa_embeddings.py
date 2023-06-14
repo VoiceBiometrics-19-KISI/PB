@@ -160,10 +160,13 @@ def dataio_prep(hparams):
     def audio_pipeline(wav, start, stop, duration):
         if hparams["random_chunk"]:
             duration_sample = int(duration * hparams["sample_rate"])
-            start = random.randint(0, duration_sample - snt_len_sample)
-            stop = start + snt_len_sample
-            print("WEE" + str(start))
-            print("WEE" + str(stop))
+            if duration_sample - snt_len_sample <= 0:
+                start = int(start)
+                stop = int(stop)
+            else:
+                start = random.randint(0, duration_sample - snt_len_sample)
+                stop = start + snt_len_sample
+
         else:
             start = int(start)
             stop = int(stop)
