@@ -55,8 +55,8 @@ def prepare_cn_celeb(
     logger.info(
         f"Creating {save_json_train}, {save_json_valid}, and {save_json_test}"
     )
-    # extension = [".flac"]
-    extension = [".wav"]
+    extension = [".flac"]
+    #extension = [".wav"]
     wav_list = get_all_files(train_folder, match_and=extension)
 
     # Random split the signal list into train, valid, and test sets.
@@ -95,7 +95,7 @@ def create_json(wav_list, json_file):
         relative_path = os.path.join("{data_root}", *path_parts[-4:])
 
         # Getting speaker-id from utterance
-        spk_id = path_parts[-3][2:]
+        spk_id = path_parts[-2][2:]
 
         # Create entry for json
         json_dict[uttid] = {

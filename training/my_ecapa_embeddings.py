@@ -162,6 +162,8 @@ def dataio_prep(hparams):
             duration_sample = int(duration * hparams["sample_rate"])
             start = random.randint(0, duration_sample - snt_len_sample)
             stop = start + snt_len_sample
+            print("WEE" + str(start))
+            print("WEE" + str(stop))
         else:
             start = int(start)
             stop = int(stop)
@@ -249,6 +251,7 @@ if __name__ == "__main__":
         run_opts=run_opts,
         checkpointer=hparams["checkpointer"],
     )
+
 
     # Training
     speaker_brain.fit(

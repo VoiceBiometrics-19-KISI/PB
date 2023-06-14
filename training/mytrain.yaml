@@ -18,7 +18,8 @@ __set_seed: !!python/object/apply:torch.manual_seed [!ref <seed>]
 # 4- Set data_folder with the local path.
 # Reading data from the local disk of the compute node (e.g. $SLURM_TMPDIR with SLURM-based clusters) is very important.
 # It allows you to read the data much faster without slowing down the shared filesystem.
-data_folder: C:\PB\PB\
+data_folder: C:\Users\Kacper\PycharmProjects\PB
+#    \CN-Celeb_flac\data
 output_folder: !ref ./results/speaker_id/<seed>
 save_folder: !ref <output_folder>/save
 train_log: !ref <output_folder>/train_log.txt
