@@ -8,8 +8,8 @@ seed: 1235
 __set_seed: !apply:torch.manual_seed [!ref <seed>]
 
 # Folders and train_log file
-data_folder: C:\PB\PB\ #e.g., /localscratch/voxceleb1
-pre_output_folder: !ref ./results/speaker_id
+data_folder: C:\Users\Kacper\PycharmProjects\PB #e.g., /localscratch/voxceleb1
+pre_output_folder: !ref ./results/speaker_id/1988/save/CKPT+2023-06-14+19-00-47+00
 output_folder: !ref <pre_output_folder>/<seed>
 save_folder: !ref <output_folder>/save/
 
@@ -17,7 +17,7 @@ save_folder: !ref <output_folder>/save/
 # is downloaded from the speechbrain HuggingFace repository.
 # However, a local path pointing to a directory containing your checkpoints may also be specified
 # instead (see pretrainer below)
-pretrain_path: !ref ./results/speaker_id/1988/CKPT+2023-06-02+01-04-58+00
+pretrain_path: !ref ./results/speaker_id/1988/save/
 
 # csv files
 train_data: train.json
@@ -54,4 +54,4 @@ pretrainer: !new:speechbrain.utils.parameter_transfer.Pretrainer
     loadables:
         embedding_model: !ref <embedding_model>
     paths:
-        embedding_model: !ref <pre_output_folder>/1988/save/CKPT+2023-06-02+01-04-58+00/embedding_model.ckpt
+        embedding_model: !ref <pre_output_folder>/1988/save/embedding_model.ckpt

@@ -61,7 +61,7 @@ deltas: False
 pretrained_path: /spkrec-ecapa-voxceleb
 
 # Output parameters
-out_n_neurons: 7205
+out_n_neurons: 200
 
 # Training Parameters
 sample_rate: 16000
@@ -69,7 +69,7 @@ number_of_epochs: 35
 batch_size: 16
 lr_start: 0.001
 lr_final: 0.0001
-n_classes: 28 # In this case, we have 28 speakers
+#n_classes: 200 # In this case, we have 28 speakers
 emb_dim: 512 # dimensionality of the embeddings
 dataloader_options:
     batch_size: !ref <batch_size>
