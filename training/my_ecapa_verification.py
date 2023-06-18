@@ -101,8 +101,8 @@ if __name__ == "__main__":
     # Get filed for testing and get their embeddings
     current_path = os.getcwd()
     parent_path = os.path.dirname(current_path)
-    file1 = os.path.join(parent_path, "CN_Celeb", "id10270/5r0dWxy17C8/00001.wav")
-    file2 = os.path.join(parent_path, "CN_Celeb", "id10270/5r0dWxy17C8/00002.wav")
+    file1 = os.path.join(parent_path, "CN_Celeb", "id10295/iVxjBZtQwBg/00001.wav")
+    file2 = os.path.join(parent_path, "CN_Celeb", "id10295/NLyQte6Mhj0/00001.wav")
 
     embedding1 = compute_embedding_from_file(file1)
     embedding2 = compute_embedding_from_file(file2)
