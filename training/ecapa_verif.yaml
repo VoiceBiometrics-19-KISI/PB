@@ -9,15 +9,18 @@ __set_seed: !apply:torch.manual_seed [!ref <seed>]
 
 # Folders and train_log file
 data_folder: C:\Users\Kacper\PycharmProjects\PB #e.g., /localscratch/voxceleb1
-pre_output_folder: !ref ./results/speaker_id/1988/save/CKPT+2023-06-14+19-00-47+00
-output_folder: !ref <pre_output_folder>/<seed>
-save_folder: !ref <output_folder>/save/
+pre_output_folder: !ref <data_folder>/training/results/speaker_id/1988
+output_folder: !ref <pre_output_folder>/save
+save_folder: !ref <output_folder>/CKPT+2023-06-21+11-20-13+00/
+#pre_output_folder: !ref <data_folder>/pretrained_models
+#output_folder: !ref <pre_output_folder>/spkrec-ecapa-voxceleb
+#save_folder: !ref <output_folder>/
 
 # Here, the pretrained embedding model trained with train_speaker_embeddings.py hparams/train_ecapa_tdnn.yaml
 # is downloaded from the speechbrain HuggingFace repository.
 # However, a local path pointing to a directory containing your checkpoints may also be specified
 # instead (see pretrainer below)
-pretrain_path: !ref ./results/speaker_id/1988/save/
+pretrain_path: !ref <save_folder>/
 
 # csv files
 train_data: train.json
@@ -25,6 +28,9 @@ valid_data: valid.json
 test_data: test.json
 split_ratio: [80, 10, 10]
 skip_prep: False
+
+## Output parameters
+#out_n_neurons: 200
 
 batch_size: 8
 score_norm: s-norm  # z-norm t-norm s-norm (uncomment to enable it)
@@ -34,12 +40,26 @@ n_train_snts: 400000 # used for normalization stats
 # Feature parameters
 n_mels: 80
 
+
 compute_features: !new:speechbrain.lobes.features.Fbank
     n_mels: !ref <n_mels>
 
+#classifier: !new:speechbrain.lobes.models.ECAPA_TDNN.Classifier
+#    input_size: 192
+#    out_neurons: !ref <out_n_neurons>
+#
 mean_var_norm: !new:speechbrain.processing.features.InputNormalization
-    norm_type: sentence
+    norm_type: global
     std_norm: False
+
+#modules:
+#    compute_features: !ref <compute_features>
+#    mean_var_norm: !ref <mean_var_norm>
+#    embedding_model: !ref <embedding_model>
+#    mean_var_norm_emb: !ref <mean_var_norm_emb>
+#    classifier: !ref <classifier>
+
+label_encoder: !new:speechbrain.dataio.encoder.CategoricalEncoder
 
 embedding_model: !new:speechbrain.lobes.models.ECAPA_TDNN.ECAPA_TDNN
     input_size: !ref <n_mels>
@@ -50,8 +70,13 @@ embedding_model: !new:speechbrain.lobes.models.ECAPA_TDNN.ECAPA_TDNN
     lin_neurons: 192
 
 pretrainer: !new:speechbrain.utils.parameter_transfer.Pretrainer
-    collect_in: !ref <pre_output_folder>
+    collect_in: !ref <output_folder>
     loadables:
         embedding_model: !ref <embedding_model>
+#        classifier: !ref <classifier>
+#        label_encoder: !ref <label_encoder>
     paths:
-        embedding_model: !ref <pre_output_folder>/1988/save/embedding_model.ckpt
+        embedding_model: !ref <save_folder>/embedding_model.ckpt
+#        mean_var_norm_emb: !ref <pretrained_path>/normalizer.ckpt
+#        classifier: !ref <pretrained_path>/classifier.ckpt
+#        label_encoder: !ref <output_folder>/label_encoder.txt

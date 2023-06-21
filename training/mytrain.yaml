@@ -58,14 +58,14 @@ right_frames: 0
 deltas: False
 # Pretrain folder (HuggingFace)
 #pretrained_path: speechbrain/spkrec-ecapa-voxceleb
-pretrained_path: /spkrec-ecapa-voxceleb
+pretrained_path: !ref <save_folder>
 
 # Output parameters
 out_n_neurons: 200
 
 # Training Parameters
 sample_rate: 16000
-number_of_epochs: 35
+number_of_epochs: 1
 batch_size: 16
 lr_start: 0.001
 lr_final: 0.0001
@@ -141,6 +141,10 @@ compute_features: !new:speechbrain.lobes.features.Fbank
     deltas: !ref <deltas>
 
 # Mean and std normalization of the input features
+mean_var_norm_emb: !new:speechbrain.processing.features.InputNormalization
+    norm_type: global
+    std_norm: False
+
 mean_var_norm: !new:speechbrain.processing.features.InputNormalization
     norm_type: sentence
     std_norm: False
@@ -159,10 +163,11 @@ embedding_model: !new:speechbrain.lobes.models.ECAPA_TDNN.ECAPA_TDNN
 classifier: !new:speechbrain.lobes.models.ECAPA_TDNN.Classifier
     input_size: 192
     out_neurons: !ref <out_n_neurons>
-mean_var_norm_emb: !new:speechbrain.processing.features.InputNormalization
-    norm_type: global
-    std_norm: False
+#    mean_var_norm_emb: !new:speechbrain.processing.features.InputNormalization
+#    norm_type: global
+#    std_norm: False
 
+label_encoder: !new:speechbrain.dataio.encoder.CategoricalEncoder
 
 # Objects in "modules" dict will have their parameters moved to the correct
 # device, as well as having train()/eval() called on them by the Brain class.
@@ -186,7 +191,7 @@ lr_annealing: !new:speechbrain.nnet.schedulers.CyclicLRScheduler
 
 modules:
     compute_features: !ref <compute_features>
-#    mean_var_norm_emb: !ref <mean_var_norm_emb>
+    mean_var_norm: !ref <mean_var_norm>
     augment_wavedrop: !ref <augment_wavedrop>
     augment_speed: !ref <augment_speed>
     add_rev: !ref <add_rev>
@@ -194,7 +199,7 @@ modules:
     add_rev_noise: !ref <add_rev_noise>
     embedding_model: !ref <embedding_model>
     classifier: !ref <classifier>
-    mean_var_norm: !ref <mean_var_norm>
+    mean_var_norm_emb: !ref <mean_var_norm_emb>
 
 
 # This object is used for saving the state of training both so that it
@@ -207,9 +212,22 @@ checkpointer: !new:speechbrain.utils.checkpoints.Checkpointer
         classifier: !ref <classifier>
         normalizer: !ref <mean_var_norm>
         counter: !ref <epoch_counter>
+        mean_var_norm_emb: !ref <mean_var_norm_emb>
 
 compute_cost: !new:speechbrain.nnet.losses.LogSoftmaxWrapper
     loss_fn: !new:speechbrain.nnet.losses.AdditiveAngularMargin
         margin: 0.2
         scale: 30
 
+pretrainer: !new:speechbrain.utils.parameter_transfer.Pretrainer
+    collect_in: !ref <output_folder>
+    loadables:
+        embedding_model: !ref <embedding_model>
+        mean_var_norm_emb: !ref <mean_var_norm_emb>
+        classifier: !ref <classifier>
+        label_encoder: !ref <label_encoder>
+    paths:
+        embedding_model: !ref <save_folder>/embedding_model.ckpt
+        mean_var_norm_emb: !ref <pretrained_path>/mean_var_norm_emb.ckpt
+        classifier: !ref <pretrained_path>/classifier.ckpt
+        label_encoder: !ref <output_folder>/label_encoder.txt

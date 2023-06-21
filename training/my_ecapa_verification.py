@@ -87,7 +87,7 @@ if __name__ == "__main__":
         params = load_hyperpyyaml(fin, overrides)
 
     sb.core.create_experiment_directory(
-        experiment_directory=params["output_folder"],
+        experiment_directory=params["output_folder"]+"/VERIF",
         hyperparams_to_save=params_file,
         overrides=overrides,
     )
