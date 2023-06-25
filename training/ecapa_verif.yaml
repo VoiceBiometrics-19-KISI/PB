@@ -8,7 +8,7 @@ seed: 1235
 __set_seed: !apply:torch.manual_seed [!ref <seed>]
 
 # Folders and train_log file
-data_folder: C:\Users\Kacper\PycharmProjects\PB #e.g., /localscratch/voxceleb1
+data_folder: C:\Users\Paulina\Desktop\PB #e.g., /localscratch/voxceleb1
 pre_output_folder: !ref <data_folder>/training/results/speaker_id/1988
 output_folder: !ref <pre_output_folder>/save
 save_folder: !ref <output_folder>/CKPT+2023-06-21+11-20-13+00/

@@ -4,15 +4,16 @@ import random
 from speechbrain.pretrained import SpeakerRecognition
 
 FINAL_SCORES = []
-verification = SpeakerRecognition.from_hparams(source="C:\\Users\\Kacper\\PycharmProjects\\PB\\training\\results\\speaker_id\\1988",
-                                               savedir="C:\\Users\\Kacper\\PycharmProjects\\PB\\training\\results\\speaker_id\\1988",
+
+verification = SpeakerRecognition.from_hparams(source="C:\\Users\\Paulina\\Desktop\\PB\\training\\results\\speaker_id\\1988",
+                                               savedir="C:\\Users\\Paulina\\Desktop\\PB\\training\\results\\speaker_id\\1988",
                                                run_opts={"device": "cuda:0"})
 # verification = SpeakerRecognition.from_hparams(source="speechbrain/spkrec-ecapa-voxceleb",
-#                                                savedir="C:\\Users\\Kacper\\PycharmProjects\\PB\\pretrained_models\\spkrec-ecapa-voxceleb",
+#                                                savedir="pretrained_models/spkrec-ecapa-voxceleb",
 #                                                run_opts={"device": "cuda:0"})
-target = '../CN-Celeb_wav/data/'
+target = '../dataset_test_en/'
 target_path = Path(target)
-for i in range(200):
+for i in range(10):
     print(i)
     curr_path = target_path / f'id{i:05}'
     index = random.randint(0, 4)
