@@ -1,0 +1,31 @@
+experiment_eer_2_separate_languages <- 
+
+PRZYGOTOWANIE
+mam przygotowane 2 foldery językowe, każdy po ileś (103) folderów oraz po 5 plików głosowych
+Każdy folder w folderze językówym ma numerki od 0 do np. 102
+Każdy numerek (np. 27) będzie miał 5 plików głosowych tego samego mówcy zarówno w 1 folderze językowym jak i 2 folderze językowym
+
+DZIAŁANIE
+przykład: chcemy zobrazować jak dobrze działa rozpoznawanie języka hinduskiego gdy mamy próbki języka angileskiego
+1. W pętli idziemy od 0 do ilości folderów (np. 103)
+2. Wybieramy losowo plik z angileskiego folderu dla danej iteracji (np. chosen = iter / random(0-4) )
+3. Wybieramy z języka hinduskiego 4 pozostałe pliki w folderze 'iter' które są inne od 'random(0-4)' oraz oznaczamy je jako 'same', gdyż pochodzą od tego samego mówcy 'chosen'
+4. Wybieramy z języka hinduskiego 4 rózne pliki z 4 różnych folderów, innych od 'iter' oraz oznaczamy je jako 'diff', gdyż pochodzą od różnych mówców, innych niż 'chosen'
+5. Weryfikujemy zgodność mówcy przy pomocy modelu ECAPA, osobno dla 'same', których wyniki oznaczamy 'positive'
+oraz osobno dla 'diff', których wyniki oznaczmy jako 'negative'. Wyniki są procentowym prawdopodobieństwem czy w 'chosen' jest ten sam mówca co w pliku 'same' lub 'diff'.
+6. Mając wyniki positive oraz negative, możemy policzyć EER, które jest punktem w którym FAR oraz FRR mają ten sam wynik.
+
+
+filter_files <-
+
+PRZYGOTOWANIE
+folder z którego biore pliki
+folder gdzie wrzucam gotowe foldery, każdy z 5 plikami powyżej 5 sekund każdy
+
+DZIAŁANIE
+1. Idziemy folder po oflderze w pętli
+2. Wchodzimy do folderu, filtrujemy pliczki co mają powyżej 5 sekund, zamykamy pętle jak mamy 5 takich pliczków, jeśli nie mamy to zapominamy o tym folderze
+3. Wrzucamy pliki do destination folderu
+
+change_dir_name <-
+Zmienia nazwy folderów na numerki od 0 do ile jest folderów
