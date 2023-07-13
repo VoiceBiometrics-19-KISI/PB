@@ -133,8 +133,6 @@ augment_pipeline: [
 ]
 concat_augment: True
 
-
-
 # Feature extraction
 compute_features: !new:speechbrain.lobes.features.Fbank
     n_mels: !ref <n_mels>
