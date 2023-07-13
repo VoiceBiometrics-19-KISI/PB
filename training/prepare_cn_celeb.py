@@ -23,9 +23,8 @@ SAMPLERATE = 16000
 def prepare_cn_celeb(
     data_folder,
     save_json_train,
-    save_json_valid,
     save_json_test,
-    split_ratio=[80, 10, 10],
+    split_ratio=None,
 ):
     """
     Prepares the json files for the  CN Celeb dataset.
@@ -38,24 +37,24 @@ def prepare_cn_celeb(
         Path to the folder where the CN Celeb dataset is stored.
     save_json_train : str
         Path where the train data specification file will be saved.
-    save_json_valid : str
-        Path where the validation data specification file will be saved.
     save_json_test : str
         Path where the test data specification file will be saved.
     split_ratio: list
         List composed of three integers that sets split ratios for train, valid,
-        and test sets, respectively. For instance split_ratio=[80, 10, 10] will
-        assign 80% of the sentences to training, 10% for validation, and 10%
+        and test sets, respectively. For instance split_ratio=[90, 10] will
+        assign 90% of the sentences to training and 10%
         for test.
 
     """
+    if split_ratio is None:
+        split_ratio = [90, 10]
     train_folder = data_folder
 
     # List files and create manifest from list
     logger.info(
-        f"Creating {save_json_train}, {save_json_valid}, and {save_json_test}"
+        f"Creating {save_json_train}, and {save_json_test}"
     )
-    #extension = [".flac"]
+    # extension = [".flac"]
     extension = [".wav"]
     wav_list = get_all_files(train_folder, match_and=extension)
 
@@ -64,7 +63,6 @@ def prepare_cn_celeb(
 
     # Creating json files
     create_json(data_split["train"], save_json_train)
-    create_json(data_split["valid"], save_json_valid)
     create_json(data_split["test"], save_json_test)
 
 
@@ -136,21 +134,20 @@ def split_sets(wav_list, split_ratio):
     wav_lst : list
         list of all the signals in the dataset
     split_ratio: list
-        List composed of three integers that sets split ratios for train, valid,
-        and test sets, respectively. For instance split_ratio=[80, 10, 10] will
-        assign 80% of the sentences to training, 10% for validation, and 10%
-        for test.
+        List composed of three integers that sets split ratios for train,
+        and test sets, respectively. For instance split_ratio=[90, 10] will
+        assign 90% of the sentences to training and 10% for test.
 
     Returns
     ------
-    dictionary containing train, valid, and test splits.
+    dictionary containing train and test splits.
     """
     # Random shuffle of the list
     random.shuffle(wav_list)
     tot_split = sum(split_ratio)
     tot_snts = len(wav_list)
     data_split = {}
-    splits = ["train", "valid"]
+    splits = ["train"]
 
     for i, split in enumerate(splits):
         n_snts = int(tot_snts * split_ratio[i] / tot_split)

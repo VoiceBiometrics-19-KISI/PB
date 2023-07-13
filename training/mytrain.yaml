@@ -7,7 +7,7 @@
 # #################################
 
 # Seed needs to be set at top of yaml, before objects with parameters are made
-seed: 1988
+seed: 1986
 __set_seed: !!python/object/apply:torch.manual_seed [!ref <seed>]
 
 # If you plan to train a system on an HPC cluster with a big dataset,
@@ -19,7 +19,7 @@ __set_seed: !!python/object/apply:torch.manual_seed [!ref <seed>]
 # Reading data from the local disk of the compute node (e.g. $SLURM_TMPDIR with SLURM-based clusters) is very important.
 # It allows you to read the data much faster without slowing down the shared filesystem.
 
-data_folder: C:\Users\Paulina\Desktop\PB
+data_folder: C:\Users\Paulina\CN-CELEB\CN-Celeb_merge_wav\data
 #    \CN-Celeb_flac\data
 output_folder: !ref ./results/speaker_id/<seed>
 save_folder: !ref <output_folder>/save
@@ -29,9 +29,9 @@ rir_folder: !ref <data_folder>/training/noises
 # Path where data manifest files will be stored
 # The data manifest files are created by the data preparation script.
 train_annotation: train.json
-valid_annotation: valid.json
+#valid_annotation: valid.json
 test_annotation: test.json
-split_ratio: [80, 10, 10]
+split_ratio: [90, 10]
 skip_prep: False
 
 lr: 0.001
@@ -62,12 +62,13 @@ deltas: False
 pretrained_path: !ref <save_folder>
 
 # Output parameters
-out_n_neurons: 200
+#out_n_neurons: 200
+out_n_neurons: 2648
 
 # Training Parameters
 sample_rate: 16000
-number_of_epochs: 1
-batch_size: 16
+number_of_epochs: 10        #TODO VOX 10 TEST 1
+batch_size: 32              #TODO VOX 32 TEST 16
 lr_start: 0.001
 lr_final: 0.0001
 #n_classes: 200 # In this case, we have 28 speakers
@@ -127,8 +128,8 @@ augment_pipeline: [
     !ref <augment_wavedrop>,
     !ref <augment_speed>,
     !ref <add_rev>,
-#    !ref <add_noise>,
-#    !ref <add_rev_noise>
+    !ref <add_noise>,
+    !ref <add_rev_noise>
 ]
 concat_augment: True
 

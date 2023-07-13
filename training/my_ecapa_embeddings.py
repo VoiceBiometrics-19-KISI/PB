@@ -39,7 +39,7 @@ class SpeakerBrain(sb.core.Brain):
         wavs, lens = batch['sig']
 
         if stage == sb.Stage.TRAIN:
-
+            print("=====AUGMENTATION PIPELINE FOR TRAIN STARTED...=====")
             # Applying the augmentation pipeline
             wavs_aug_tot = []
             wavs_aug_tot.append(wavs)
@@ -64,14 +64,17 @@ class SpeakerBrain(sb.core.Brain):
             wavs = torch.cat(wavs_aug_tot, dim=0)
             self.n_augment = len(wavs_aug_tot)
             lens = torch.cat([lens] * self.n_augment)
+        print("=====AUGMENTATION PIPELINE FOR TRAIN FINISHED=====")
 
         # Feature extraction and normalization
         feats = self.modules.compute_features(wavs)
         feats = self.modules.mean_var_norm(feats, lens)
+        print("=====FEATURES EXTRACTED=====")
 
         # Embeddings + speaker classifier
         embeddings = self.modules.embedding_model(feats)
         outputs = self.modules.classifier(embeddings)
+        print("=====EMBEDDINGS DONE=====")
 
         return outputs, lens
 
@@ -113,7 +116,9 @@ class SpeakerBrain(sb.core.Brain):
             stage_stats["ErrorRate"] = self.error_metrics.summarize("average")
 
         # Perform end-of-iteration things, like annealing, logging, etc.
+        # TODO it should NOT work here
         if stage == sb.Stage.VALID:
+            print("AAAAAAAAAAA I SHOULDN'T BE HERE")
             old_lr, new_lr = self.hparams.lr_annealing(epoch)
             sb.nnet.schedulers.update_learning_rate(self.optimizer, new_lr)
 
@@ -139,22 +144,18 @@ def dataio_prep(hparams):
         replacements={"data_root": data_folder},
     )
 
-    valid_data = sb.dataio.dataset.DynamicItemDataset.from_json(
-        json_path=hparams["valid_annotation"],
-        replacements={"data_root": data_folder},
-    )
-
     test_data = sb.dataio.dataset.DynamicItemDataset.from_json(
         json_path=hparams["test_annotation"],
         replacements={"data_root": data_folder},
     )
 
-    datasets = [train_data, valid_data, test_data]
+    datasets = [train_data, test_data]
     label_encoder = sb.dataio.encoder.CategoricalEncoder()
 
     snt_len_sample = int(hparams["sample_rate"] * hparams["sentence_len"])
 
     # 2. Define audio pipeline:
+    print("=====AUDIO PIPELINE STARTED...=====")
     @sb.utils.data_pipeline.takes("wav", "start", "stop", "duration")
     @sb.utils.data_pipeline.provides("sig")
     def audio_pipeline(wav, start, stop, duration):
@@ -176,9 +177,10 @@ def dataio_prep(hparams):
         )
         sig = sig.transpose(0, 1).squeeze(1)
         return sig
-
+    print("=====AUDIO PIPELINE FINISHED=====")
 
     # 3. Define text pipeline:
+    print("=====TEXT PIPELINE STARTED...=====")
     @sb.utils.data_pipeline.takes("spk_id")
     @sb.utils.data_pipeline.provides("spk_id", "spk_id_encoded")
     def label_pipeline(spk_id):
@@ -193,32 +195,28 @@ def dataio_prep(hparams):
         output_keys=["id", "sig", "spk_id_encoded"],
     )
 
-    valid_data = sb.dataio.dataset.DynamicItemDataset.from_json(
-        json_path=hparams["valid_annotation"],
-        replacements={"data_root": hparams["data_folder"]},
-        dynamic_items=[audio_pipeline, label_pipeline],
-        output_keys=["id", "sig", "spk_id_encoded"],
-    )
-
     test_data = sb.dataio.dataset.DynamicItemDataset.from_json(
         json_path=hparams["test_annotation"],
         replacements={"data_root": hparams["data_folder"]},
         dynamic_items=[audio_pipeline, label_pipeline],
         output_keys=["id", "sig", "spk_id_encoded"],
     )
+    print("=====TEXT PIPELINE FINISHED=====")
 
     # 3. Fit encoder:
     # Load or compute the label encoder (with multi-GPU DDP support)
+    print("=====FIT ENCODER STARTED...=====")
     lab_enc_file = os.path.join(hparams["save_folder"], "label_encoder.txt")
     label_encoder.load_or_create(
-        path=lab_enc_file, from_didatasets=[train_data, valid_data, test_data], output_key="spk_id",
+        path=lab_enc_file, from_didatasets=[train_data, test_data], output_key="spk_id",
     )
+    print("=====FIT ENCODER FINISHED=====")
+
 
     # 4. Set output:
-
     sb.dataio.dataset.set_output_keys(datasets, ["id", "sig", "spk_id_encoded"])
 
-    return train_data, valid_data, test_data, label_encoder
+    return train_data, test_data, label_encoder
 
 
 if __name__ == "__main__":
@@ -235,9 +233,11 @@ if __name__ == "__main__":
     # Load hyperparameters file with command-line overrides
     with open(hparams_file) as fin:
         hparams = load_hyperpyyaml(fin, overrides)
+    print("=====HYPERPARAMETERS LOADED=====")
 
     # Dataset IO prep: creating Dataset objects and proper encodings for phones
-    train_data, valid_data, test_data, label_encoder = dataio_prep(hparams)
+    train_data, test_data, label_encoder = dataio_prep(hparams)
+    print("=====DATASETS CREATED=====")
 
     # Create experiment directory
     sb.core.create_experiment_directory(
@@ -255,14 +255,11 @@ if __name__ == "__main__":
         checkpointer=hparams["checkpointer"],
     )
 
-
     # Training
     speaker_brain.fit(
         hparams["epoch_counter"],
         train_data,
-        valid_data,
-        train_loader_kwargs=hparams["dataloader_options"],
-        valid_loader_kwargs=hparams["dataloader_options"],
+        train_loader_kwargs=hparams["dataloader_options"]
     )
 
     # Load the best checkpoint for evaluation
