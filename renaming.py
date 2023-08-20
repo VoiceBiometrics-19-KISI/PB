@@ -2,7 +2,7 @@ import csv
 import os
 from pathlib import Path
 
-target = 'C:/CN-CELEB/CN-Celeb_merge_wav/data/'
+target = 'E:\Paulina\CN-Celeb-exp1'
 target_path = Path(target)
 
 data=[]
